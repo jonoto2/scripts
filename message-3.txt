@@ -1,0 +1,163 @@
+local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer:FindFirstChild("PlayerGui"))
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+
+local Menu = Instance.new("TextButton", ScreenGui)
+Menu.AnchorPoint = Vector2.new(0.5, 0.5)
+Menu.BackgroundColor3 = Color3.fromRGB(25, 40, 60)
+Menu.BorderSizePixel = 0
+Menu.Position = UDim2.new(0.5, 0, 0.5, 0)
+Menu.Size = UDim2.new(0, 200, 0, 200)
+Menu.AutoButtonColor = false
+Menu.Text = ""
+
+local UICorner = Instance.new("UICorner", Menu)
+UICorner.CornerRadius = UDim.new(0, 16)
+
+local Title = Instance.new("Frame", Menu)
+Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, 0, 0.2, 0)
+
+local Name = Instance.new("TextLabel", Title)
+Name.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Name.BackgroundTransparency = 1
+Name.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Name.BorderSizePixel = 0
+Name.Size = UDim2.new(0.8, 0, 1, 0)
+Name.Font = Enum.Font.Nunito
+Name.Text = "Dupe"
+Name.TextColor3 = Color3.fromRGB(255, 255, 255)
+Name.TextScaled = true
+Name.TextWrapped = true
+
+local Exit = Instance.new("TextButton", Title)
+Exit.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+Exit.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Exit.BorderSizePixel = 0
+Exit.Position = UDim2.new(0.8, 8, 0, 8)
+Exit.Size = UDim2.new(0.2, -16, 1, -16)
+Exit.Font = Enum.Font.Nunito
+Exit.Text = "X"
+Exit.TextColor3 = Color3.fromRGB(255, 255, 255)
+Exit.TextScaled = true
+Exit.TextWrapped = true
+
+Instance.new("UICorner", Exit)
+
+local Body = Instance.new("Frame", Menu)
+Body.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Body.BackgroundTransparency = 1
+Body.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Body.Position = UDim2.new(0, 0, 0.2, 0)
+Body.Size = UDim2.new(1, 0, 0.8, 0)
+
+local Slot = Instance.new("TextBox", Body)
+Slot.AnchorPoint = Vector2.new(0.5, 0.5)
+Slot.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Slot.BackgroundTransparency = 0.75
+Slot.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Slot.BorderSizePixel = 0
+Slot.Position = UDim2.new(0.5, 0, 0.25, 0)
+Slot.Size = UDim2.new(0.5, 0, 0.2, 0)
+Slot.Font = Enum.Font.Nunito
+Slot.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+Slot.PlaceholderText = "Slot"
+Slot.Text = ""
+Slot.TextColor3 = Color3.fromRGB(255, 255, 255)
+Slot.TextScaled = true
+Slot.TextWrapped = true
+
+UICorner:Clone().Parent = Slot
+
+local Start = Instance.new("TextButton", Body)
+Start.AnchorPoint = Vector2.new(0.5, 0.5)
+Start.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+Start.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Start.BorderSizePixel = 0
+Start.Position = UDim2.new(0.5, 0, 0.6, 0)
+Start.Size = UDim2.new(0.5, 0, 0.25, 0)
+Start.Font = Enum.Font.Nunito
+Start.Text = "Start"
+Start.TextColor3 = Color3.fromRGB(255, 255, 255)
+Start.TextScaled = true
+Start.TextWrapped = true
+
+UICorner:Clone().Parent = Start
+
+local TweenService = game:GetService("TweenService")
+local UIScale = Instance.new("UIScale", Menu)
+UIScale.Scale = 0
+local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out)
+TweenService:Create(UIScale, tweenInfo, {Scale = 1}):Play()
+
+
+coroutine.wrap(function()
+	local UserInputService = game:GetService("UserInputService")
+
+	local isDragging = false
+	local dragStartPosition
+	local frameStartPosition
+	
+	local function getUDim2(delta, input)
+		return UDim2.new(
+			(input.Position.X / ScreenGui.AbsoluteSize.X) - delta.X, 0,
+			(input.Position.Y / ScreenGui.AbsoluteSize.Y) - delta.Y, 0
+		)
+	end
+	
+	UserInputService.InputChanged:Connect(function(input)
+		if isDragging then
+			local delta = Vector2.new(
+				(dragStartPosition.X / ScreenGui.AbsoluteSize.X) - frameStartPosition.X.Scale,
+				(dragStartPosition.Y / ScreenGui.AbsoluteSize.Y) - frameStartPosition.Y.Scale
+			)
+			local newPos = getUDim2(delta, input)
+			TweenService:Create(Menu, tweenInfo, {Position = newPos}):Play()
+		end
+	end)
+	
+	Menu.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			isDragging = true
+			dragStartPosition = input.Position
+			frameStartPosition = Menu.Position
+	
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					isDragging = false
+				end
+			end)
+		end
+	end)
+	
+	Start.MouseButton1Click:Connect(function()
+		local Plr = game.Players.LocalPlayer
+		local Char = Plr.Character
+		local HRP = Char:FindFirstChild("HumanoidRootPart")
+		Char.Humanoid.Jump = true
+		wait(0.1)
+		HRP.CFrame = CFrame.new(-1000, workspace.FallenPartsDestroyHeight, 2000)
+
+		local ChildCheck
+		ChildCheck = Char.ChildRemoved:Connect(function(part)
+			if part == HRP then
+				local n = Slot.Text:gsub("%D", "")
+				game.ReplicatedStorage.LoadSaveRequests.RequestLoad:InvokeServer(tonumber(n))
+				ChildCheck:Disconnect()
+			end
+		end)
+	end)
+	
+	local exitStarted = false
+	Exit.MouseButton1Click:Connect(function()
+		if exitStarted then return end
+		exitStarted = true
+		
+		local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Elastic, Enum.EasingDirection.In)
+		local tween = TweenService:Create(UIScale, tweenInfo, {Scale = 0})
+		tween:Play()
+		tween.Completed:Wait()
+		ScreenGui:Destroy()
+	end)
+end)()
