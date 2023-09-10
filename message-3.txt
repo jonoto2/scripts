@@ -1,3 +1,5 @@
+-- if you use this code for other guis, please indicate my discord server 
+-- https://discord.gg/kH2D9Cvz
 local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer:FindFirstChild("PlayerGui"))
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
